@@ -7,7 +7,7 @@ import java.util.Properties;
 public class ConfigReader {
 
     // Properties object to hold key-value configurations
-    private static Properties properties;
+    private static final Properties properties;
 
     // Static block ensures configuration files load exactly once when the framework starts
     static {
