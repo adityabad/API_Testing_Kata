@@ -18,3 +18,22 @@ Feature: Create a new room booking
       | depositpaid | true         |
     Then the booking should be created successfully
     And the response should include a booking confirmation
+
+  Scenario Outline: Fail to create a booking with invalid guest details
+    When a guest submits a booking with the following details:
+      | firstname   | <firstname>   |
+      | lastname    | <lastname>    |
+      | email       | <email>       |
+      | phone       | <phone>       |
+      | checkin     | <checkin>     |
+      | checkout    | <checkout>    |
+      | depositpaid | <depositpaid> |
+    Then the booking should not be created
+    And the response should contain the validation error "<error>"
+
+    Examples:
+      | firstname | lastname | email          | phone         | checkin    | checkout   | depositpaid | error                                |
+      | dd        | lll      | asdfafk@dv.co  | 99888888888   | 2026-08-16 | 2026-08-17 | true        | size must be between 3 and 18        |
+      | dddd      | l        | asdfafk@dv.co  | 99888888888   | 2026-08-16 | 2026-08-17 | true        | size must be between 3 and 30        |
+      | dddd      | lll      | invalid-email  | 99888888888   | 2026-08-16 | 2026-08-17 | true        | must be a well-formed email address  |
+      | dddd      | lll      | asdfafk@dv.co  | 9988888888    | 2026-08-16 | 2026-08-17 | true        | size must be between 11 and 21       |

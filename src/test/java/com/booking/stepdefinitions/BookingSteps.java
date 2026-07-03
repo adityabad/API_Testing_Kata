@@ -65,4 +65,15 @@ public class BookingSteps {
                 .body("lastname", notNullValue())
                 .body("roomid", notNullValue());
     }
+
+    @Then("the booking should not be created")
+    public void theBookingShouldNotBeCreated() {
+        response.then().assertThat().statusCode(400);
+    }
+
+    @And("the response should contain the validation error {string}")
+    public void theResponseShouldContainTheValidationError(String expectedError) {
+        response.then()
+                .body("errors", hasItem(expectedError));
+    }
 }
