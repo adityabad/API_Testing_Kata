@@ -10,6 +10,7 @@ import java.util.Map;
 public class AuthClient {
 
     private static String sessionToken = null;
+    public static final String AUTH_ENDPOINT = ConfigReader.getProperty("auth.url");
 
     /**
      * Authenticates with Restful-Booker Platform and caches the session cookie.
@@ -26,7 +27,7 @@ public class AuthClient {
                     .contentType(ContentType.JSON)
                     .body(credentials)
                     .when()
-                    .post("api/auth/login"); // Endpoint specifically for this playground
+                    .post(AUTH_ENDPOINT); // Endpoint specifically for this playground
 
             // Validate status code 200 before reading response text
             if (response.getStatusCode() != 200) {
