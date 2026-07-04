@@ -18,6 +18,11 @@ on:
   # Allow manual trigger from the Actions tab
   workflow_dispatch:
 
+permissions:
+  contents: read
+  actions: read
+  checks: write
+
 jobs:
   build-and-test:
     name: Build and Run API Tests
@@ -37,16 +42,11 @@ jobs:
       - name: Run Maven tests
         run: mvn -B clean test
 
-      - name: Upload Cucumber HTML report
+      - name: Publish test results to GitHub Actions
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: dorny/test-reporter@v1
         with:
-          name: cucumber-report
-          path: target/cucumber-reports.html
-
-      - name: Upload Cucumber JSON report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: cucumber-json
-          path: target/cucumber.json
+          name: Maven Test Results
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+          fail-on-error: false
