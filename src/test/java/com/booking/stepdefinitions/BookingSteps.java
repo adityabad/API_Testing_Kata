@@ -16,6 +16,7 @@ import io.restassured.response.Response;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.Matchers.*;
 
 public class BookingSteps {
@@ -36,7 +37,8 @@ public class BookingSteps {
                 .assertThat()
                 .statusCode(200)
                 .body("status", equalTo("UP"))
-                .contentType(containsString("json"));
+                .contentType(containsString("json"))
+                .body(matchesJsonSchemaInClasspath("schemas/health-schema.json"));
     }
 
     @When("a guest submits a booking with the following details:")
@@ -122,7 +124,8 @@ public class BookingSteps {
         context.getResponse().then()
                 .assertThat()
                 .statusCode(200)
-                .contentType("application/json");
+                .contentType("application/json")
+                .body(matchesJsonSchemaInClasspath("schemas/booking-create-response-schema.json"));
     }
 
     @Then("the booking should not be created")
@@ -131,7 +134,8 @@ public class BookingSteps {
                 .assertThat()
                 .statusCode(400)
                 .contentType("application/json")
-                .body("errors", notNullValue());
+                .body("errors", notNullValue())
+                .body(matchesJsonSchemaInClasspath("schemas/validation-error-schema.json"));
     }
 
     @And("the response should include a booking confirmation")
@@ -164,6 +168,7 @@ public class BookingSteps {
                 .assertThat()
                 .statusCode(200)
                 .contentType("application/json")
+                .body(matchesJsonSchemaInClasspath("schemas/booking-schema.json"))
                 .body("firstname", equalTo(request.getFirstname()))
                 .body("lastname", equalTo(request.getLastname()))
                 .body("depositpaid", equalTo(request.isDepositpaid()))
@@ -179,6 +184,7 @@ public class BookingSteps {
         context.getResponse().then()
                 .assertThat()
                 .statusCode(404);
+        SchemaValidator.validateIfBodyPresent(context.getResponse(), "schemas/not-found-error-schema.json");
     }
 
     @Then("the booking should be updated successfully")
@@ -189,6 +195,7 @@ public class BookingSteps {
                 .assertThat()
                 .statusCode(200)
                 .contentType("application/json")
+                .body(matchesJsonSchemaInClasspath("schemas/booking-schema.json"))
                 .body("firstname", equalTo(request.getFirstname()))
                 .body("lastname", equalTo(request.getLastname()))
                 .body("depositpaid", equalTo(request.isDepositpaid()))
@@ -205,6 +212,7 @@ public class BookingSteps {
                 .assertThat()
                 .statusCode(200)
                 .contentType("application/json")
+                .body(matchesJsonSchemaInClasspath("schemas/booking-schema.json"))
                 .body("firstname", notNullValue())
                 .body("lastname", notNullValue())
                 .body("bookingdates", notNullValue());
@@ -229,6 +237,7 @@ public class BookingSteps {
         response.then()
                 .assertThat()
                 .statusCode(404);
+        SchemaValidator.validateIfBodyPresent(response, "schemas/not-found-error-schema.json");
     }
 
     @Given("a booking has been created with the following details:")

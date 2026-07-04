@@ -6,6 +6,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.response.Response;
 
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.Matchers.*;
 
 public class AuthSteps {
@@ -36,6 +37,7 @@ public class AuthSteps {
                 .assertThat()
                 .statusCode(expectedStatus)
                 .contentType("application/json")
+                .body(matchesJsonSchemaInClasspath("schemas/auth-error-schema.json"))
                 .body("error", equalTo("Invalid credentials"));
     }
 
@@ -44,5 +46,6 @@ public class AuthSteps {
         response.then()
                 .assertThat()
                 .statusCode(expectedStatus);
+        SchemaValidator.validateIfBodyPresent(response, "schemas/unauthorized-error-schema.json");
     }
 }

@@ -50,6 +50,11 @@
             <artifactId>rest-assured</artifactId>
             <version>6.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>6.0.0</version>
+        </dependency>
 
         <!-- JUnit 5 Dependency -->
         <dependency>
