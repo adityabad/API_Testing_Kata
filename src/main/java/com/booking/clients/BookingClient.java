@@ -48,4 +48,18 @@ public class BookingClient {
                 .when()
                 .delete(BOOKING_ENDPOINT + "/" + bookingId);
     }
+
+    public Response getBookingWithoutAuth(int bookingId) {
+        return RestAssured.given()
+                .spec(SpecFactory.getUnauthorizedRequestSpecification())
+                .when()
+                .get(BOOKING_ENDPOINT + "/" + bookingId);
+    }
+
+    public Response getBookingWithInvalidToken(int bookingId) {
+        return RestAssured.given()
+                .spec(SpecFactory.getInvalidTokenRequestSpecification())
+                .when()
+                .get(BOOKING_ENDPOINT + "/" + bookingId);
+    }
 }

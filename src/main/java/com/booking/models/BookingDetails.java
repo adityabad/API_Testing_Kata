@@ -10,5 +10,5 @@ public class BookingDetails {
     String firstName;
     String lastName;
     boolean depositpaid;
-    BookingDates bookingDates;
+    BookingDates bookingdates;
 }
