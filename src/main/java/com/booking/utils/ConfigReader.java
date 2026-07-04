@@ -28,6 +28,14 @@ public class ConfigReader {
 
     /**
      * Retrieves the string configuration value corresponding to the specified key.
+     * <p>
+     * Resolution order:
+     * <ol>
+     *   <li>Environment variable prefixed with BOOKING_ (e.g. BOOKING_USERNAME)</li>
+     *   <li>Java system property (e.g. -Dusername=...)</li>
+     *   <li>Value from the loaded properties file</li>
+     * </ol>
+     *
      * @param key The property name configured inside your .properties files
      * @return The string configuration value, or null if key does not exist
      */
@@ -35,6 +43,20 @@ public class ConfigReader {
         if (properties == null) {
             throw new IllegalStateException("Properties matrix was not initialized correctly.");
         }
+
+        // 1. Environment variable with BOOKING_ prefix
+        String envValue = System.getenv("BOOKING_" + key.toUpperCase());
+        if (envValue != null && !envValue.isEmpty()) {
+            return envValue.trim();
+        }
+
+        // 2. Java system property
+        String systemValue = System.getProperty(key);
+        if (systemValue != null && !systemValue.isEmpty()) {
+            return systemValue.trim();
+        }
+
+        // 3. Properties file fallback
         String value = properties.getProperty(key);
         return (value != null) ? value.trim() : null;
     }

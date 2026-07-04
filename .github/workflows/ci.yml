@@ -40,6 +40,9 @@ jobs:
           cache: maven
 
       - name: Run Maven tests
+        env:
+          BOOKING_USERNAME: ${{ secrets.BOOKING_USERNAME }}
+          BOOKING_PASSWORD: ${{ secrets.BOOKING_PASSWORD }}
         run: mvn -B clean test
 
       - name: Publish test results to GitHub Actions
