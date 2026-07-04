@@ -35,12 +35,15 @@ public class BookingSteps {
         healthResponse.then()
                 .assertThat()
                 .statusCode(200)
-                .body("status", equalTo("UP"));
+                .body("status", equalTo("UP"))
+                .contentType(containsString("json"));
     }
 
     @When("a guest submits a booking with the following details:")
     public void aGuestSubmitsABookingWithTheFollowingDetails(DataTable dataTable) {
         BookingRequest bookingRequest = buildBookingRequest(dataTable.asMap());
+        context.setLastBookingRequest(bookingRequest);
+
         Response response = bookingClient.createBooking(bookingRequest);
         context.setResponse(response);
 
@@ -65,6 +68,8 @@ public class BookingSteps {
     @When("a guest updates the booking with the following details:")
     public void aGuestUpdatesTheBookingWithTheFollowingDetails(DataTable dataTable) {
         BookingRequest bookingRequest = buildBookingRequest(dataTable.asMap());
+        context.setLastBookingRequest(bookingRequest);
+
         Response response = bookingClient.updateBooking(context.getBookingId(), bookingRequest);
         context.setResponse(response);
     }
@@ -72,6 +77,8 @@ public class BookingSteps {
     @When("a guest updates the booking with id {int} with the following details:")
     public void aGuestUpdatesTheBookingWithIdWithTheFollowingDetails(int bookingId, DataTable dataTable) {
         BookingRequest bookingRequest = buildBookingRequest(dataTable.asMap());
+        context.setLastBookingRequest(bookingRequest);
+
         Response response = bookingClient.updateBooking(bookingId, bookingRequest);
         context.setResponse(response);
     }
@@ -92,6 +99,8 @@ public class BookingSteps {
             }
         }
 
+        context.setLastPartialUpdate(updates);
+
         Response response = bookingClient.patchBooking(context.getBookingId(), updates);
         context.setResponse(response);
     }
@@ -110,21 +119,35 @@ public class BookingSteps {
 
     @Then("the booking should be created successfully")
     public void theBookingShouldBeCreatedSuccessfully() {
-        context.getResponse().then().assertThat().statusCode(200);
+        context.getResponse().then()
+                .assertThat()
+                .statusCode(200)
+                .contentType("application/json");
     }
 
     @Then("the booking should not be created")
     public void theBookingShouldNotBeCreated() {
-        context.getResponse().then().assertThat().statusCode(400);
+        context.getResponse().then()
+                .assertThat()
+                .statusCode(400)
+                .contentType("application/json")
+                .body("errors", notNullValue());
     }
 
     @And("the response should include a booking confirmation")
     public void theResponseShouldIncludeABookingConfirmation() {
+        BookingRequest request = context.getLastBookingRequest();
+
         context.getResponse().then()
-                .body("bookingid", notNullValue())
-                .body("booking.firstname", notNullValue())
-                .body("booking.lastname", notNullValue())
-                .body("booking.roomid", notNullValue());
+                .body("bookingid", greaterThan(0))
+                .body("booking.firstname", equalTo(request.getFirstname()))
+                .body("booking.lastname", equalTo(request.getLastname()))
+                .body("booking.depositpaid", equalTo(request.isDepositpaid()))
+                .body("booking.roomid", equalTo(request.getRoomid()))
+                .body("booking.email", equalTo(request.getEmail()))
+                .body("booking.phone", equalTo(request.getPhone()))
+                .body("booking.bookingdates.checkin", equalTo(request.getBookingdates().getCheckin()))
+                .body("booking.bookingdates.checkout", equalTo(request.getBookingdates().getCheckout()));
     }
 
     @And("the response should contain the validation error {string}")
@@ -135,27 +158,45 @@ public class BookingSteps {
 
     @Then("the booking details should be returned successfully")
     public void theBookingDetailsShouldBeReturnedSuccessfully() {
+        BookingRequest request = context.getLastBookingRequest();
+
         context.getResponse().then()
                 .assertThat()
                 .statusCode(200)
-                .body("firstname", notNullValue())
-                .body("lastname", notNullValue())
-                .body("roomid", notNullValue())
-                .body("bookingdates", notNullValue());
+                .contentType("application/json")
+                .body("firstname", equalTo(request.getFirstname()))
+                .body("lastname", equalTo(request.getLastname()))
+                .body("depositpaid", equalTo(request.isDepositpaid()))
+                .body("roomid", equalTo(request.getRoomid()))
+                .body("email", equalTo(request.getEmail()))
+                .body("phone", equalTo(request.getPhone()))
+                .body("bookingdates.checkin", equalTo(request.getBookingdates().getCheckin()))
+                .body("bookingdates.checkout", equalTo(request.getBookingdates().getCheckout()));
     }
 
     @Then("the booking should not be found")
     public void theBookingShouldNotBeFound() {
-        context.getResponse().then().assertThat().statusCode(404);
+        context.getResponse().then()
+                .assertThat()
+                .statusCode(404);
     }
 
     @Then("the booking should be updated successfully")
     public void theBookingShouldBeUpdatedSuccessfully() {
+        BookingRequest request = context.getLastBookingRequest();
+
         context.getResponse().then()
                 .assertThat()
                 .statusCode(200)
-                .body("firstname", notNullValue())
-                .body("lastname", notNullValue());
+                .contentType("application/json")
+                .body("firstname", equalTo(request.getFirstname()))
+                .body("lastname", equalTo(request.getLastname()))
+                .body("depositpaid", equalTo(request.isDepositpaid()))
+                .body("roomid", equalTo(request.getRoomid()))
+                .body("email", equalTo(request.getEmail()))
+                .body("phone", equalTo(request.getPhone()))
+                .body("bookingdates.checkin", equalTo(request.getBookingdates().getCheckin()))
+                .body("bookingdates.checkout", equalTo(request.getBookingdates().getCheckout()));
     }
 
     @Then("the booking should be partially updated successfully")
@@ -163,28 +204,31 @@ public class BookingSteps {
         context.getResponse().then()
                 .assertThat()
                 .statusCode(200)
+                .contentType("application/json")
                 .body("firstname", notNullValue())
-                .body("lastname", notNullValue());
+                .body("lastname", notNullValue())
+                .body("bookingdates", notNullValue());
     }
 
     @And("the booking should reflect the partial update {string} with value {string}")
     public void theBookingShouldReflectThePartialUpdateWithValue(String field, String value) {
-        if ("depositpaid".equalsIgnoreCase(field)) {
-            context.getResponse().then().body(field, equalTo(Boolean.parseBoolean(value)));
-        } else {
-            context.getResponse().then().body(field, equalTo(value));
-        }
+        Object expectedValue = context.getLastPartialUpdate().get(field);
+        context.getResponse().then().body(field, equalTo(expectedValue));
     }
 
     @Then("the booking should be deleted successfully")
     public void theBookingShouldBeDeletedSuccessfully() {
-        context.getResponse().then().assertThat().statusCode(201);
+        context.getResponse().then()
+                .assertThat()
+                .statusCode(201);
     }
 
     @And("retrieving the deleted booking should return not found")
     public void retrievingTheDeletedBookingShouldReturnNotFound() {
         Response response = bookingClient.getBooking(context.getBookingId());
-        response.then().assertThat().statusCode(404);
+        response.then()
+                .assertThat()
+                .statusCode(404);
     }
 
     @Given("a booking has been created with the following details:")

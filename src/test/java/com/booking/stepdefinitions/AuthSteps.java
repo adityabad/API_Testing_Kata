@@ -6,8 +6,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.response.Response;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 
 public class AuthSteps {
 
@@ -33,11 +32,17 @@ public class AuthSteps {
 
     @Then("the authentication should fail with status {int}")
     public void theAuthenticationShouldFailWithStatus(int expectedStatus) {
-        response.then().assertThat().statusCode(expectedStatus);
+        response.then()
+                .assertThat()
+                .statusCode(expectedStatus)
+                .contentType("application/json")
+                .body("error", equalTo("Invalid credentials"));
     }
 
     @Then("the request should be rejected with status {int}")
     public void theRequestShouldBeRejectedWithStatus(int expectedStatus) {
-        response.then().assertThat().statusCode(expectedStatus);
+        response.then()
+                .assertThat()
+                .statusCode(expectedStatus);
     }
 }
