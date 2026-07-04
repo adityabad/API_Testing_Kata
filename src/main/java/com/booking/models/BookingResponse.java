@@ -6,9 +6,9 @@ import lombok.Data;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BookingResponse {
-    String bookingId;
+    String bookingid;
     String email;
     String phone;
-    BookingDetails bookingDetails;
+    BookingDetails bookingdetails;
 }
 
