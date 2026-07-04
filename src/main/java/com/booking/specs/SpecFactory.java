@@ -1,6 +1,7 @@
 package com.booking.specs;
 
 import com.booking.clients.AuthClient;
+import com.booking.filters.ServerErrorRetryFilter;
 import com.booking.utils.ConfigReader;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
@@ -8,12 +9,19 @@ import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 
 public class SpecFactory {
+
+    private static final ServerErrorRetryFilter RETRY_FILTER = new ServerErrorRetryFilter(3, 1000);
     static String token = AuthClient.getSessionToken();
 
     public static RequestSpecification getGeneralRequestSpecification() {
-        return new RequestSpecBuilder().setBaseUri(ConfigReader.getProperty("base.url")).
-                                            setBasePath("api").addCookie("token",token).setContentType(ContentType.JSON).
-                                                    log(LogDetail.ALL).build();
+        return new RequestSpecBuilder()
+                .setBaseUri(ConfigReader.getProperty("base.url"))
+                .setBasePath("api")
+                .addCookie("token", token)
+                .setContentType(ContentType.JSON)
+                .addFilter(RETRY_FILTER)
+                .log(LogDetail.ALL)
+                .build();
     }
 
     /**
@@ -25,6 +33,7 @@ public class SpecFactory {
                 .setBaseUri(ConfigReader.getProperty("base.url"))
                 .setBasePath("api")
                 .setContentType(ContentType.JSON)
+                .addFilter(RETRY_FILTER)
                 .log(LogDetail.ALL)
                 .build();
     }
@@ -39,6 +48,7 @@ public class SpecFactory {
                 .setBasePath("api")
                 .addCookie("token", "invalid-expired-token")
                 .setContentType(ContentType.JSON)
+                .addFilter(RETRY_FILTER)
                 .log(LogDetail.ALL)
                 .build();
     }

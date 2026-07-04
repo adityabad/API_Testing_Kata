@@ -1,9 +1,11 @@
 package com.booking.clients;
 
+import com.booking.filters.ServerErrorRetryFilter;
 import com.booking.utils.ConfigReader;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,6 +43,8 @@ public class AuthClient {
      * @param password the password
      * @return the authentication response
      */
+    private static final ServerErrorRetryFilter RETRY_FILTER = new ServerErrorRetryFilter(3, 1000);
+
     public static Response login(String username, String password) {
         Map<String, String> credentials = new HashMap<>();
         credentials.put("username", username);
@@ -50,6 +54,7 @@ public class AuthClient {
                 .baseUri(ConfigReader.getProperty("base.url"))
                 .contentType(ContentType.JSON)
                 .body(credentials)
+                .filter(RETRY_FILTER)
                 .when()
                 .post(AUTH_ENDPOINT);
     }
