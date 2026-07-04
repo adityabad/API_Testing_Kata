@@ -20,15 +20,9 @@ import static org.hamcrest.Matchers.*;
 
 public class BookingSteps {
 
-    private final BookingClient bookingClient;
-    private final HealthCheckClient healthCheckClient;
-    private final BookingContext context;
-
-    public BookingSteps(BookingContext context) {
-        this.context = context;
-        this.bookingClient = new BookingClient();
-        this.healthCheckClient = new HealthCheckClient();
-    }
+    private final BookingClient bookingClient = new BookingClient();
+    private final HealthCheckClient healthCheckClient = new HealthCheckClient();
+    private final BookingContext context = new BookingContext();
 
     @After
     public void tearDown() {
