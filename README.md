@@ -103,32 +103,60 @@ git clone <repository-url>
 cd API_Testing_Kata
 ```
 
-### 2. Set credentials as environment variables
+### 2. Set credentials
 
-The framework reads credentials from environment variables. Do **not** put them in `qa.properties`.
+The framework reads credentials from environment variables or Java system properties. Do **not** put them in `qa.properties`.
 
-#### Linux / macOS
+#### Option A: Environment variables
+
+**Linux / macOS / Git Bash**
 
 ```bash
 export BOOKING_USERNAME=admin
 export BOOKING_PASSWORD=password
 ```
 
-#### Windows (PowerShell)
+Inline:
+
+```bash
+BOOKING_USERNAME=admin BOOKING_PASSWORD=password mvn clean test
+```
+
+**Windows PowerShell**
 
 ```powershell
 $env:BOOKING_USERNAME="admin"
 $env:BOOKING_PASSWORD="password"
+mvn clean test
 ```
 
-#### Windows (CMD)
+**Windows CMD**
 
 ```cmd
 set BOOKING_USERNAME=admin
 set BOOKING_PASSWORD=password
+mvn clean test
+```
+
+Or in one line:
+
+```cmd
+set BOOKING_USERNAME=admin && set BOOKING_PASSWORD=password && mvn clean test
 ```
 
 > The expected environment variable names are `BOOKING_USERNAME` and `BOOKING_PASSWORD`.
+
+#### Option B: Java system properties (works the same on every OS)
+
+```bash
+mvn clean test -DBOOKING_USERNAME=admin -DBOOKING_PASSWORD=password
+```
+
+You can also use the shorter names:
+
+```bash
+mvn clean test -Dusername=admin -Dpassword=password
+```
 
 ### 3. Verify Maven can resolve dependencies
 
@@ -146,12 +174,26 @@ mvn clean compile test-compile
 mvn clean test
 ```
 
-Make sure the environment variables are set first.
+Make sure the credentials are set first using one of the methods above.
 
-### Run with credentials inline (Linux/macOS/Git Bash)
+### Run with credentials inline
+
+**Linux / macOS / Git Bash**
 
 ```bash
 BOOKING_USERNAME=admin BOOKING_PASSWORD=password mvn clean test
+```
+
+**Windows CMD**
+
+```cmd
+set BOOKING_USERNAME=admin && set BOOKING_PASSWORD=password && mvn clean test
+```
+
+**Any OS using system properties**
+
+```bash
+mvn clean test -DBOOKING_USERNAME=admin -DBOOKING_PASSWORD=password
 ```
 
 ### Run the standalone TestNG test
@@ -202,8 +244,9 @@ Test results are published directly in the GitHub Actions UI using `dorny/test-r
 Configuration resolution order (highest priority first):
 
 1. Environment variables prefixed with `BOOKING_` (e.g., `BOOKING_USERNAME`)
-2. Java system properties (e.g., `-Dusername=admin`)
-3. `src/test/resources/qa.properties`
+2. Java system properties prefixed with `BOOKING_` (e.g., `-DBOOKING_USERNAME=admin`)
+3. Java system properties (e.g., `-Dusername=admin`)
+4. `src/test/resources/qa.properties`
 
 Edit `qa.properties` for non-sensitive settings like `base.url`, `booking.url`, `auth.url`, etc.
 

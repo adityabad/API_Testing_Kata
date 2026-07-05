@@ -32,6 +32,7 @@ public class ConfigReader {
      * Resolution order:
      * <ol>
      *   <li>Environment variable prefixed with BOOKING_ (e.g. BOOKING_USERNAME)</li>
+     *   <li>Java system property prefixed with BOOKING_ (e.g. -DBOOKING_USERNAME=...)</li>
      *   <li>Java system property (e.g. -Dusername=...)</li>
      *   <li>Value from the loaded properties file</li>
      * </ol>
@@ -44,19 +45,27 @@ public class ConfigReader {
             throw new IllegalStateException("Properties matrix was not initialized correctly.");
         }
 
+        String bookingKey = "BOOKING_" + key.toUpperCase();
+
         // 1. Environment variable with BOOKING_ prefix
-        String envValue = System.getenv("BOOKING_" + key.toUpperCase());
+        String envValue = System.getenv(bookingKey);
         if (envValue != null && !envValue.isEmpty()) {
             return envValue.trim();
         }
 
-        // 2. Java system property
+        // 2. Java system property with BOOKING_ prefix
+        String bookingSystemValue = System.getProperty(bookingKey);
+        if (bookingSystemValue != null && !bookingSystemValue.isEmpty()) {
+            return bookingSystemValue.trim();
+        }
+
+        // 3. Java system property
         String systemValue = System.getProperty(key);
         if (systemValue != null && !systemValue.isEmpty()) {
             return systemValue.trim();
         }
 
-        // 3. Properties file fallback
+        // 4. Properties file fallback
         String value = properties.getProperty(key);
         return (value != null) ? value.trim() : null;
     }

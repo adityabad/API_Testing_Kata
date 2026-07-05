@@ -27,7 +27,13 @@ public class AuthClient {
             // Validate status code 200 before reading response text
             if (response.getStatusCode() != 200) {
                 System.out.println("Auth Error Raw Body: " + response.asString());
-                throw new RuntimeException("Authentication failed! Verify credentials inside your properties sheet.");
+                throw new RuntimeException(
+                        "Authentication failed! " +
+                        "Set credentials using one of the following methods:\n" +
+                        "  - Environment variables: BOOKING_USERNAME and BOOKING_PASSWORD\n" +
+                        "  - System properties: -DBOOKING_USERNAME=... -DBOOKING_PASSWORD=... (or -Dusername=... -Dpassword=...)\n" +
+                        "  - On Windows CMD: set BOOKING_USERNAME=admin && set BOOKING_PASSWORD=password && mvn clean test"
+                );
             }
 
             // The site returns the token in the response body as JSON { "token": "..." }
