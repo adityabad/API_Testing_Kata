@@ -11,13 +11,12 @@ import io.restassured.specification.RequestSpecification;
 public class SpecFactory {
 
     private static final ServerErrorRetryFilter RETRY_FILTER = new ServerErrorRetryFilter(3, 1000);
-    static String token = AuthClient.getSessionToken();
 
     public static RequestSpecification getGeneralRequestSpecification() {
         return new RequestSpecBuilder()
                 .setBaseUri(ConfigReader.getProperty("base.url"))
                 .setBasePath("api")
-                .addCookie("token", token)
+                .addCookie("token", AuthClient.getSessionToken())
                 .setContentType(ContentType.JSON)
                 .addFilter(RETRY_FILTER)
                 .log(LogDetail.ALL)

@@ -16,7 +16,7 @@ public class HealthCheckClient {
      */
     public Response checkHealth() {
         return RestAssured.given()
-                .spec(SpecFactory.getGeneralRequestSpecification())
+                .spec(SpecFactory.getUnauthorizedRequestSpecification())
                 .when()
                 .get(HEALTH_ENDPOINT);
     }
