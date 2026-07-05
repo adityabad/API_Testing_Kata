@@ -2,6 +2,8 @@ package com.booking.stepdefinitions;
 
 import com.booking.clients.AuthClient;
 import com.booking.clients.BookingClient;
+import com.booking.utils.ConfigReader;
+import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.response.Response;
@@ -13,54 +15,89 @@ public class AuthSteps {
 
     private final BookingClient bookingClient = new BookingClient();
     private Response response;
+    private String username;
+    private String password;
 
-    @When("a user logs in with username {string} and password {string}")
-    public void aUserLogsInWithUsernameAndPassword(String username, String password) {
+    @Given("a staff member has valid credentials")
+    public void aStaffMemberHasValidCredentials() {
+        this.username = ConfigReader.getProperty("username");
+        this.password = ConfigReader.getProperty("password");
+    }
+
+    @Given("a staff member enters the wrong password")
+    public void aStaffMemberEntersTheWrongPassword() {
+        this.username = ConfigReader.getProperty("username");
+        this.password = "wrongpassword";
+    }
+
+    @Given("a staff member leaves the username blank")
+    public void aStaffMemberLeavesTheUsernameBlank() {
+        this.username = "";
+        this.password = ConfigReader.getProperty("password");
+    }
+
+    @Given("a staff member leaves the password blank")
+    public void aStaffMemberLeavesThePasswordBlank() {
+        this.username = ConfigReader.getProperty("username");
+        this.password = "";
+    }
+
+    @Given("a staff member leaves both fields blank")
+    public void aStaffMemberLeavesBothFieldsBlank() {
+        this.username = "";
+        this.password = "";
+    }
+
+    @Given("a staff member is not logged in")
+    public void aStaffMemberIsNotLoggedIn() {
+        this.response = bookingClient.getBookingWithoutAuth(999999);
+    }
+
+    @Given("a staff member's session has expired")
+    public void aStaffMemberSessionHasExpired() {
+        this.response = bookingClient.getBookingWithInvalidToken(999999);
+    }
+
+    @Given("a staff member's session details are corrupted")
+    public void aStaffMemberSessionDetailsAreCorrupted() {
+        this.response = bookingClient.getBookingWithMalformedToken(999999);
+    }
+
+    @When("they log in")
+    public void theyLogIn() {
         response = AuthClient.login(username, password);
     }
 
-    @When("a user accesses the booking endpoint without authentication")
-    public void aUserAccessesTheBookingEndpointWithoutAuthentication() {
-        // Using a high id to avoid accidentally hitting an existing booking.
-        response = bookingClient.getBookingWithoutAuth(999999);
+    @When("they try to view a booking")
+    public void theyTryToViewABooking() {
+        // The request was already sent in the Given step based on the session state.
+        // This step exists purely for readability in the Gherkin scenario.
     }
 
-    @When("a user accesses the booking endpoint with an invalid token")
-    public void aUserAccessesTheBookingEndpointWithAnInvalidToken() {
-        // Using a high id to avoid accidentally hitting an existing booking.
-        response = bookingClient.getBookingWithInvalidToken(999999);
-    }
-
-    @When("a user accesses the booking endpoint with a malformed token")
-    public void aUserAccessesTheBookingEndpointWithAMalformedToken() {
-        // Using a high id to avoid accidentally hitting an existing booking.
-        response = bookingClient.getBookingWithMalformedToken(999999);
-    }
-
-    @Then("the authentication should fail with status {int}")
-    public void theAuthenticationShouldFailWithStatus(int expectedStatus) {
+    @Then("they should be granted access")
+    public void theyShouldBeGrantedAccess() {
         response.then()
                 .assertThat()
-                .statusCode(expectedStatus)
+                .statusCode(200)
+                .contentType("application/json")
+                .body("token", notNullValue());
+    }
+
+    @Then("they should be denied access")
+    public void theyShouldBeDeniedAccess() {
+        response.then()
+                .assertThat()
+                .statusCode(401)
                 .contentType("application/json")
                 .body(matchesJsonSchemaInClasspath("schemas/auth-error-schema.json"))
                 .body("error", equalTo("Invalid credentials"));
     }
 
-    @Then("the authentication should succeed with status {int}")
-    public void theAuthenticationShouldSucceedWithStatus(int expectedStatus) {
+    @Then("they should be blocked")
+    public void theyShouldBeBlocked() {
         response.then()
                 .assertThat()
-                .statusCode(expectedStatus)
-                .contentType("application/json")
-                .body("token", notNullValue());
-    }
-
-    @Then("the request should be rejected with status {int}")
-    public void theRequestShouldBeRejectedWithStatus(int expectedStatus) {
-        response.then()
-                .assertThat()
-                .statusCode(expectedStatus);
+                .statusCode(403);
         SchemaValidator.validateIfBodyPresent(response, "schemas/unauthorized-error-schema.json");
     }
 }

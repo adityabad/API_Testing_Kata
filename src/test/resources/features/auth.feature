@@ -1,37 +1,45 @@
 @auth
-Feature: Authentication and authorization
-  As an API consumer
-  I want to be authenticated and authorized
-  So that only valid users can manage bookings
+Feature: Login and access control
+  As a hotel staff member
+  I want the system to verify who I am
+  So that only authorized users can manage bookings
 
-  Scenario: Login fails with invalid credentials
-    When a user logs in with username "admin" and password "wrongpassword"
-    Then the authentication should fail with status 401
+  Scenario: Staff member logs in with valid credentials
+    Given a staff member has valid credentials
+    When they log in
+    Then they should be granted access
 
-  Scenario: Login fails with an empty username
-    When a user logs in with username "" and password "password"
-    Then the authentication should fail with status 401
+  Scenario: Staff member logs in with an invalid password
+    Given a staff member enters the wrong password
+    When they log in
+    Then they should be denied access
 
-  Scenario: Login fails with an empty password
-    When a user logs in with username "admin" and password ""
-    Then the authentication should fail with status 401
+  Scenario: Staff member leaves the username blank
+    Given a staff member leaves the username blank
+    When they log in
+    Then they should be denied access
 
-  Scenario: Login fails with both fields empty
-    When a user logs in with username "" and password ""
-    Then the authentication should fail with status 401
+  Scenario: Staff member leaves the password blank
+    Given a staff member leaves the password blank
+    When they log in
+    Then they should be denied access
 
-  Scenario: Login succeeds with valid credentials
-    When a user logs in with username "admin" and password "password"
-    Then the authentication should succeed with status 200
+  Scenario: Staff member leaves both fields blank
+    Given a staff member leaves both fields blank
+    When they log in
+    Then they should be denied access
 
-  Scenario: Accessing a protected endpoint without a token fails
-    When a user accesses the booking endpoint without authentication
-    Then the request should be rejected with status 403
+  Scenario: Staff member tries to manage bookings without logging in
+    Given a staff member is not logged in
+    When they try to view a booking
+    Then they should be blocked
 
-  Scenario: Accessing a protected endpoint with an invalid token fails
-    When a user accesses the booking endpoint with an invalid token
-    Then the request should be rejected with status 403
+  Scenario: Staff member tries to manage bookings after their session has expired
+    Given a staff member's session has expired
+    When they try to view a booking
+    Then they should be blocked
 
-  Scenario: Accessing a protected endpoint with a malformed token fails
-    When a user accesses the booking endpoint with a malformed token
-    Then the request should be rejected with status 403
+  Scenario: Staff member tries to manage bookings with corrupted session details
+    Given a staff member's session details are corrupted
+    When they try to view a booking
+    Then they should be blocked
