@@ -9,64 +9,64 @@ Feature: Update an existing room booking
 
   Scenario: Successfully replace an existing booking
     Given a booking has been created with the following details:
-      | firstname   | dddd          |
-      | lastname    | lll           |
-      | email       | asdfafk@dv.co |
-      | phone       | 99888888888   |
-      | checkin     | 2026-08-16    |
-      | checkout    | 2026-08-17    |
-      | depositpaid | true          |
+      | firstname   | John                 |
+      | lastname    | Smith                |
+      | email       | john.smith@email.com |
+      | phone       | 15551234567          |
+      | checkin     | 2026-08-16           |
+      | checkout    | 2026-08-17           |
+      | depositpaid | true                 |
     When a guest updates the booking with the following details:
-      | firstname   | John            |
-      | lastname    | Doe             |
-      | email       | john.doe@dv.co  |
-      | phone       | 99999999999     |
-      | checkin     | 2026-09-01      |
-      | checkout    | 2026-09-05      |
-      | depositpaid | false           |
+      | firstname   | Robert              |
+      | lastname    | Johnson             |
+      | email       | robert.j@email.com  |
+      | phone       | 15559871234         |
+      | checkin     | 2026-09-01          |
+      | checkout    | 2026-09-05          |
+      | depositpaid | false               |
     Then the booking should be updated successfully
 
   Scenario: Successfully partially update an existing booking
     Given a booking has been created with the following details:
-      | firstname   | dddd          |
-      | lastname    | lll           |
-      | email       | asdfafk@dv.co |
-      | phone       | 99888888888   |
-      | checkin     | 2026-08-16    |
-      | checkout    | 2026-08-17    |
-      | depositpaid | true          |
+      | firstname   | Emily                 |
+      | lastname    | Davis                 |
+      | email       | emily.davis@email.com |
+      | phone       | 15551112222           |
+      | checkin     | 2026-08-16            |
+      | checkout    | 2026-08-17            |
+      | depositpaid | true                  |
     When a guest partially updates the booking with:
-      | firstname   | Jane  |
+      | firstname   | Emma  |
       | depositpaid | false |
     Then the booking should be partially updated successfully
-    And the booking should reflect the partial update "firstname" with value "Jane"
+    And the booking should reflect the partial update "firstname" with value "Emma"
     And the booking should reflect the partial update "depositpaid" with value "false"
 
   Scenario: Fail to update a booking that does not exist
     When a guest updates the booking with id 999999 with the following details:
-      | firstname   | John            |
-      | lastname    | Doe             |
-      | email       | john.doe@dv.co  |
-      | phone       | 99999999999     |
-      | checkin     | 2026-09-01      |
-      | checkout    | 2026-09-05      |
-      | depositpaid | false           |
+      | firstname   | Robert              |
+      | lastname    | Johnson             |
+      | email       | robert.j@email.com  |
+      | phone       | 15559871234         |
+      | checkin     | 2026-09-01          |
+      | checkout    | 2026-09-05          |
+      | depositpaid | false               |
     Then the booking should not be found
 
   Scenario: Fail to update a booking with an invalid email
     Given a booking has been created with the following details:
-      | firstname   | dddd          |
-      | lastname    | lll           |
-      | email       | asdfafk@dv.co |
-      | phone       | 99888888888   |
-      | checkin     | 2026-08-16    |
-      | checkout    | 2026-08-17    |
-      | depositpaid | true          |
+      | firstname   | Michael                 |
+      | lastname    | Brown                   |
+      | email       | michael.brown@email.com |
+      | phone       | 15552223333             |
+      | checkin     | 2026-08-16              |
+      | checkout    | 2026-08-17              |
+      | depositpaid | true                    |
     When a guest updates the booking with the following details:
-      | firstname   | John            |
-      | lastname    | Doe             |
+      | firstname   | Robert          |
+      | lastname    | Johnson         |
       | email       | invalid-email   |
-      | phone       | 99999999999     |
+      | phone       | 15559871234     |
       | checkin     | 2026-09-01      |
       | checkout    | 2026-09-05      |
       | depositpaid | false           |
@@ -74,18 +74,18 @@ Feature: Update an existing room booking
 
   Scenario: Fail to update a booking with a phone number that is too short
     Given a booking has been created with the following details:
-      | firstname   | dddd          |
-      | lastname    | lll           |
-      | email       | asdfafk@dv.co |
-      | phone       | 99888888888   |
-      | checkin     | 2026-08-16    |
-      | checkout    | 2026-08-17    |
-      | depositpaid | true          |
+      | firstname   | Sarah                 |
+      | lastname    | Wilson                |
+      | email       | sarah.wilson@email.com |
+      | phone       | 15553334444           |
+      | checkin     | 2026-08-16            |
+      | checkout    | 2026-08-17            |
+      | depositpaid | true                  |
     When a guest updates the booking with the following details:
-      | firstname   | John            |
-      | lastname    | Doe             |
-      | email       | john.doe@dv.co  |
-      | phone       | 9999999999      |
+      | firstname   | Robert          |
+      | lastname    | Johnson         |
+      | email       | robert.j@email.com |
+      | phone       | 1555987123      |
       | checkin     | 2026-09-01      |
       | checkout    | 2026-09-05      |
       | depositpaid | false           |
@@ -93,19 +93,19 @@ Feature: Update an existing room booking
 
   Scenario: Fail to update a booking with invalid dates
     Given a booking has been created with the following details:
-      | firstname   | dddd          |
-      | lastname    | lll           |
-      | email       | asdfafk@dv.co |
-      | phone       | 99888888888   |
-      | checkin     | 2026-08-16    |
-      | checkout    | 2026-08-17    |
-      | depositpaid | true          |
+      | firstname   | David                 |
+      | lastname    | Miller                |
+      | email       | david.miller@email.com |
+      | phone       | 15554445555           |
+      | checkin     | 2026-08-16            |
+      | checkout    | 2026-08-17            |
+      | depositpaid | true                  |
     When a guest updates the booking with the following details:
-      | firstname   | John            |
-      | lastname    | Doe             |
-      | email       | john.doe@dv.co  |
-      | phone       | 99999999999     |
-      | checkin     | 2026-09-05      |
-      | checkout    | 2026-09-01      |
-      | depositpaid | false           |
+      | firstname   | Robert             |
+      | lastname    | Johnson            |
+      | email       | robert.j@email.com |
+      | phone       | 15559871234        |
+      | checkin     | 2026-09-05         |
+      | checkout    | 2026-09-01         |
+      | depositpaid | false              |
     Then the booking should not be created

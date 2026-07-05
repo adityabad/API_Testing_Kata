@@ -9,13 +9,13 @@ Feature: Retrieve a room booking
 
   Scenario: Successfully retrieve an existing booking
     Given a booking has been created with the following details:
-      | firstname   | dddd          |
-      | lastname    | lll           |
-      | email       | asdfafk@dv.co |
-      | phone       | 99888888888   |
-      | checkin     | 2026-08-16    |
-      | checkout    | 2026-08-17    |
-      | depositpaid | true          |
+      | firstname   | John               |
+      | lastname    | Smith              |
+      | email       | john.smith@email.com |
+      | phone       | 15551234567        |
+      | checkin     | 2026-08-16         |
+      | checkout    | 2026-08-17         |
+      | depositpaid | true               |
     When a guest retrieves the booking
     Then the booking details should be returned successfully
 
@@ -33,13 +33,13 @@ Feature: Retrieve a room booking
 
   Scenario: Fail to retrieve a deleted booking
     Given a booking has been created with the following details:
-      | firstname   | dddd          |
-      | lastname    | lll           |
-      | email       | asdfafk@dv.co |
-      | phone       | 99888888888   |
-      | checkin     | 2026-08-16    |
-      | checkout    | 2026-08-17    |
-      | depositpaid | true          |
+      | firstname   | Jane               |
+      | lastname    | Doe                |
+      | email       | jane.doe@email.com |
+      | phone       | 15559876543        |
+      | checkin     | 2026-09-10         |
+      | checkout    | 2026-09-12         |
+      | depositpaid | false              |
     When a guest deletes the booking
     Then the booking should be deleted successfully
     When a guest retrieves the booking
