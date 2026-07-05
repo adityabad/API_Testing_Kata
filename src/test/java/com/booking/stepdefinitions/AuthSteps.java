@@ -31,6 +31,12 @@ public class AuthSteps {
         response = bookingClient.getBookingWithInvalidToken(999999);
     }
 
+    @When("a user accesses the booking endpoint with a malformed token")
+    public void aUserAccessesTheBookingEndpointWithAMalformedToken() {
+        // Using a high id to avoid accidentally hitting an existing booking.
+        response = bookingClient.getBookingWithMalformedToken(999999);
+    }
+
     @Then("the authentication should fail with status {int}")
     public void theAuthenticationShouldFailWithStatus(int expectedStatus) {
         response.then()
@@ -39,6 +45,15 @@ public class AuthSteps {
                 .contentType("application/json")
                 .body(matchesJsonSchemaInClasspath("schemas/auth-error-schema.json"))
                 .body("error", equalTo("Invalid credentials"));
+    }
+
+    @Then("the authentication should succeed with status {int}")
+    public void theAuthenticationShouldSucceedWithStatus(int expectedStatus) {
+        response.then()
+                .assertThat()
+                .statusCode(expectedStatus)
+                .contentType("application/json")
+                .body("token", notNullValue());
     }
 
     @Then("the request should be rejected with status {int}")

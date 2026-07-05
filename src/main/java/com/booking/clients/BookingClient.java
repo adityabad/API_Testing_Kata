@@ -62,4 +62,11 @@ public class BookingClient {
                 .when()
                 .get(BOOKING_ENDPOINT + "/" + bookingId);
     }
+
+    public Response getBookingWithMalformedToken(int bookingId) {
+        return RestAssured.given()
+                .spec(SpecFactory.getMalformedTokenRequestSpecification())
+                .when()
+                .get(BOOKING_ENDPOINT + "/" + bookingId);
+    }
 }

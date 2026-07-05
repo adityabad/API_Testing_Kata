@@ -23,3 +23,21 @@ Feature: Delete a room booking
   Scenario: Fail to delete a booking that does not exist
     When a guest deletes a booking with id 999999
     Then the booking should not be found
+
+  Scenario: Fail to delete a booking with id zero
+    When a guest deletes a booking with id 0
+    Then the booking should not be found
+
+  Scenario: Fail to delete an already deleted booking
+    Given a booking has been created with the following details:
+      | firstname   | dddd          |
+      | lastname    | lll           |
+      | email       | asdfafk@dv.co |
+      | phone       | 99888888888   |
+      | checkin     | 2026-08-16    |
+      | checkout    | 2026-08-17    |
+      | depositpaid | true          |
+    When a guest deletes the booking
+    Then the booking should be deleted successfully
+    When a guest deletes the booking
+    Then the booking should not be found

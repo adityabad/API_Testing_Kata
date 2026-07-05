@@ -52,3 +52,60 @@ Feature: Update an existing room booking
       | checkout    | 2026-09-05      |
       | depositpaid | false           |
     Then the booking should not be found
+
+  Scenario: Fail to update a booking with an invalid email
+    Given a booking has been created with the following details:
+      | firstname   | dddd          |
+      | lastname    | lll           |
+      | email       | asdfafk@dv.co |
+      | phone       | 99888888888   |
+      | checkin     | 2026-08-16    |
+      | checkout    | 2026-08-17    |
+      | depositpaid | true          |
+    When a guest updates the booking with the following details:
+      | firstname   | John            |
+      | lastname    | Doe             |
+      | email       | invalid-email   |
+      | phone       | 99999999999     |
+      | checkin     | 2026-09-01      |
+      | checkout    | 2026-09-05      |
+      | depositpaid | false           |
+    Then the booking should not be created
+
+  Scenario: Fail to update a booking with a phone number that is too short
+    Given a booking has been created with the following details:
+      | firstname   | dddd          |
+      | lastname    | lll           |
+      | email       | asdfafk@dv.co |
+      | phone       | 99888888888   |
+      | checkin     | 2026-08-16    |
+      | checkout    | 2026-08-17    |
+      | depositpaid | true          |
+    When a guest updates the booking with the following details:
+      | firstname   | John            |
+      | lastname    | Doe             |
+      | email       | john.doe@dv.co  |
+      | phone       | 9999999999      |
+      | checkin     | 2026-09-01      |
+      | checkout    | 2026-09-05      |
+      | depositpaid | false           |
+    Then the booking should not be created
+
+  Scenario: Fail to update a booking with invalid dates
+    Given a booking has been created with the following details:
+      | firstname   | dddd          |
+      | lastname    | lll           |
+      | email       | asdfafk@dv.co |
+      | phone       | 99888888888   |
+      | checkin     | 2026-08-16    |
+      | checkout    | 2026-08-17    |
+      | depositpaid | true          |
+    When a guest updates the booking with the following details:
+      | firstname   | John            |
+      | lastname    | Doe             |
+      | email       | john.doe@dv.co  |
+      | phone       | 99999999999     |
+      | checkin     | 2026-09-05      |
+      | checkout    | 2026-09-01      |
+      | depositpaid | false           |
+    Then the booking should not be created

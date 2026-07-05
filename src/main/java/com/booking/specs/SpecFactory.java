@@ -52,4 +52,19 @@ public class SpecFactory {
                 .log(LogDetail.ALL)
                 .build();
     }
+
+    /**
+     * Returns a request specification with a malformed authentication token.
+     * Useful for negative authorization tests.
+     */
+    public static RequestSpecification getMalformedTokenRequestSpecification() {
+        return new RequestSpecBuilder()
+                .setBaseUri(ConfigReader.getProperty("base.url"))
+                .setBasePath("api")
+                .addCookie("token", "@@@malformed token@@@")
+                .setContentType(ContentType.JSON)
+                .addFilter(RETRY_FILTER)
+                .log(LogDetail.ALL)
+                .build();
+    }
 }
