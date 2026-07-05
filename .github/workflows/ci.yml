@@ -45,11 +45,70 @@ jobs:
           BOOKING_PASSWORD: ${{ secrets.BOOKING_PASSWORD }}
         run: mvn -B clean test
 
-      - name: Publish test results to GitHub Actions
+      - name: Generate Cucumber HTML report
         if: always()
-        uses: dorny/test-reporter@v1
+        run: |
+          mkdir -p target/cucumber-report
+          cp target/cucumber-reports.html target/cucumber-report/index.html
+
+      - name: Upload Cucumber HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: Maven Test Results
-          path: target/surefire-reports/*.xml
-          reporter: java-junit
-          fail-on-error: false
+          name: cucumber-html-report
+          path: target/cucumber-report/
+
+      - name: Publish test summary to GitHub Actions
+        if: always()
+        run: |
+          python3 << 'EOF'
+          import json
+          import os
+
+          report_path = 'target/cucumber.json'
+          summary_path = os.environ.get('GITHUB_STEP_SUMMARY')
+
+          if not os.path.exists(report_path):
+              with open(summary_path, 'a') as f:
+                  f.write('## API Test Results\n\nCucumber JSON report not found.\n')
+              exit(0)
+
+          with open(report_path, 'r', encoding='utf-8') as f:
+              data = json.load(f)
+
+          total = passed = failed = skipped = 0
+          failed_scenarios = []
+
+          for feature in data:
+              feature_name = feature.get('name', 'Unknown Feature')
+              for element in feature.get('elements', []):
+                  if element.get('type') == 'background':
+                      continue
+                  scenario_name = element.get('name', 'Unknown Scenario')
+                  steps = element.get('steps', [])
+                  statuses = [s.get('result', {}).get('status') for s in steps if 'result' in s]
+
+                  total += 1
+                  if 'failed' in statuses:
+                      failed += 1
+                      failed_scenarios.append(f"{feature_name} > {scenario_name}")
+                  elif 'skipped' in statuses:
+                      skipped += 1
+                  elif statuses and all(s == 'passed' for s in statuses):
+                      passed += 1
+
+          with open(summary_path, 'a') as f:
+              f.write('## API Test Results\n\n')
+              f.write(f"- **Total scenarios:** {total}\n")
+              f.write(f"- **Passed:** {passed} :white_check_mark:\n")
+              f.write(f"- **Failed:** {failed} :x:\n")
+              f.write(f"- **Skipped:** {skipped} :warning:\n\n")
+
+              if failed > 0:
+                  f.write("### Failed scenarios\n\n")
+                  for scenario in failed_scenarios:
+                      f.write(f"- {scenario}\n")
+                  f.write("\n")
+
+              f.write("Download the full Cucumber HTML report from the **Artifacts** section above.\n")
+          EOF
