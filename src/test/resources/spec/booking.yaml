@@ -75,7 +75,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Booking'
       responses:
-        '200':
+        '201':
           description: Booking successfully created
           content:
             application/json:

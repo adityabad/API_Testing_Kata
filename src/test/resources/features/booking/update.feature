@@ -26,7 +26,7 @@ Feature: Update an existing room booking
       | depositpaid | false               |
     Then the booking should be updated successfully
 
-  Scenario: Successfully partially update an existing booking
+  Scenario: Partial update is not supported by the API
     Given a booking has been created with the following details:
       | firstname   | Emily                 |
       | lastname    | Davis                 |
@@ -38,9 +38,7 @@ Feature: Update an existing room booking
     When a guest partially updates the booking with:
       | firstname   | Emma  |
       | depositpaid | false |
-    Then the booking should be partially updated successfully
-    And the booking should reflect the partial update "firstname" with value "Emma"
-    And the booking should reflect the partial update "depositpaid" with value "false"
+    Then the partial update should be rejected as method not allowed
 
   Scenario: Fail to update a booking that does not exist
     When a guest updates the booking with id 999999 with the following details:

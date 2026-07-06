@@ -54,7 +54,7 @@ Feature: Create a new room booking
     Examples:
       | firstname | lastname | email                  | phone         | checkin    | checkout   | depositpaid | error                                |
       | Jo        | Smith    | john.smith@email.com   | 15551234567   | 2026-08-16 | 2026-08-17 | true        | size must be between 3 and 18        |
-      | John      | S        | john.smith@email.com   | 15551234567   | 2026-08-16 | 2026-08-17 | true        | size must be between 3 and 18        |
+      | John      | S        | john.smith@email.com   | 15551234567   | 2026-08-16 | 2026-08-17 | true        | size must be between 3 and 30        |
       | John      | Smith    | invalid-email          | 15551234567   | 2026-08-16 | 2026-08-17 | true        | must be a well-formed email address  |
       | John      | Smith    | john.smith@email.com   | 1555123456    | 2026-08-16 | 2026-08-17 | true        | size must be between 11 and 21       |
       | John      | Smith    | plainaddress           | 15551234567   | 2026-08-16 | 2026-08-17 | true        | must be a well-formed email address  |

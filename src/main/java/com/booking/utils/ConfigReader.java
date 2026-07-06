@@ -6,23 +6,20 @@ import java.util.Properties;
 
 public class ConfigReader {
 
-    // Properties object to hold key-value configurations
-    private static final Properties properties;
+    private static final String ENV_PREFIX = "BOOKING_";
+    private static final Properties properties = loadProperties();
 
-    // Static block ensures configuration files load exactly once when the framework starts
-    static {
-        try {
-            // Read environment flag from system variables. Defaults to "qa" if null.
-            String environment = System.getProperty("env", "qa").toLowerCase().trim();
-            String configFilePath = "src/test/resources/" + environment + ".properties";
+    private static Properties loadProperties() {
+        String environment = System.getProperty("env", "qa").toLowerCase().trim();
+        String configFilePath = "src/test/resources/" + environment + ".properties";
 
-            FileInputStream fileInputStream = new FileInputStream(configFilePath);
-            properties = new Properties();
-            properties.load(fileInputStream);
-            fileInputStream.close();
-
+        try (FileInputStream fileInputStream = new FileInputStream(configFilePath)) {
+            Properties props = new Properties();
+            props.load(fileInputStream);
+            return props;
         } catch (IOException e) {
-            throw new RuntimeException("Framework Initialization Failed: Could not load properties file. " + e.getMessage());
+            throw new RuntimeException(
+                "Framework Initialization Failed: Could not load properties file: " + configFilePath, e);
         }
     }
 
@@ -41,32 +38,15 @@ public class ConfigReader {
      * @return The string configuration value, or null if key does not exist
      */
     public static String getProperty(String key) {
-        if (properties == null) {
-            throw new IllegalStateException("Properties matrix was not initialized correctly.");
-        }
+        String bookingKey = ENV_PREFIX + key.toUpperCase();
 
-        String bookingKey = "BOOKING_" + key.toUpperCase();
+        String value = firstNonBlank(
+            System.getenv(bookingKey),
+            System.getProperty(bookingKey),
+            System.getProperty(key),
+            properties.getProperty(key)
+        );
 
-        // 1. Environment variable with BOOKING_ prefix
-        String envValue = System.getenv(bookingKey);
-        if (envValue != null && !envValue.isEmpty()) {
-            return envValue.trim();
-        }
-
-        // 2. Java system property with BOOKING_ prefix
-        String bookingSystemValue = System.getProperty(bookingKey);
-        if (bookingSystemValue != null && !bookingSystemValue.isEmpty()) {
-            return bookingSystemValue.trim();
-        }
-
-        // 3. Java system property
-        String systemValue = System.getProperty(key);
-        if (systemValue != null && !systemValue.isEmpty()) {
-            return systemValue.trim();
-        }
-
-        // 4. Properties file fallback
-        String value = properties.getProperty(key);
         return (value != null) ? value.trim() : null;
     }
 
@@ -78,5 +58,14 @@ public class ConfigReader {
     public static int getIntProperty(String key, int defaultValue) {
         String value = getProperty(key);
         return (value != null) ? Integer.parseInt(value) : defaultValue;
+    }
+
+    private static String firstNonBlank(String... candidates) {
+        for (String candidate : candidates) {
+            if (candidate != null && !candidate.isBlank()) {
+                return candidate;
+            }
+        }
+        return null;
     }
 }

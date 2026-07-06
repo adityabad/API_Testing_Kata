@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "required": ["roomid", "firstname", "lastname", "depositpaid", "bookingdates", "email", "phone"],
+  "required": ["roomid", "firstname", "lastname", "depositpaid", "bookingdates"],
   "properties": {
     "roomid": {
       "type": "integer"

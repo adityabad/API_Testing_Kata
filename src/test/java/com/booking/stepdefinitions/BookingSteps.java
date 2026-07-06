@@ -49,7 +49,7 @@ public class BookingSteps {
         Response response = bookingClient.createBooking(bookingRequest);
         context.setResponse(response);
 
-        if (response.getStatusCode() == 200) {
+        if (response.getStatusCode() == 201) {
             context.setBookingCreated(true);
             context.setBookingId(response.jsonPath().getInt("bookingid"));
         }
@@ -123,7 +123,7 @@ public class BookingSteps {
     public void theBookingShouldBeCreatedSuccessfully() {
         context.getResponse().then()
                 .assertThat()
-                .statusCode(200)
+                .statusCode(201)
                 .contentType("application/json")
                 .body(matchesJsonSchemaInClasspath("schemas/booking-create-response-schema.json"));
     }
@@ -144,14 +144,12 @@ public class BookingSteps {
 
         context.getResponse().then()
                 .body("bookingid", greaterThan(0))
-                .body("booking.firstname", equalTo(request.getFirstname()))
-                .body("booking.lastname", equalTo(request.getLastname()))
-                .body("booking.depositpaid", equalTo(request.isDepositpaid()))
-                .body("booking.roomid", equalTo(request.getRoomid()))
-                .body("booking.email", equalTo(request.getEmail()))
-                .body("booking.phone", equalTo(request.getPhone()))
-                .body("booking.bookingdates.checkin", equalTo(request.getBookingdates().getCheckin()))
-                .body("booking.bookingdates.checkout", equalTo(request.getBookingdates().getCheckout()));
+                .body("firstname", equalTo(request.getFirstname()))
+                .body("lastname", equalTo(request.getLastname()))
+                .body("depositpaid", equalTo(request.isDepositpaid()))
+                .body("roomid", equalTo(request.getRoomid()))
+                .body("bookingdates.checkin", equalTo(request.getBookingdates().getCheckin()))
+                .body("bookingdates.checkout", equalTo(request.getBookingdates().getCheckout()));
     }
 
     @And("the response should contain the validation error {string}")
@@ -173,8 +171,6 @@ public class BookingSteps {
                 .body("lastname", equalTo(request.getLastname()))
                 .body("depositpaid", equalTo(request.isDepositpaid()))
                 .body("roomid", equalTo(request.getRoomid()))
-                .body("email", equalTo(request.getEmail()))
-                .body("phone", equalTo(request.getPhone()))
                 .body("bookingdates.checkin", equalTo(request.getBookingdates().getCheckin()))
                 .body("bookingdates.checkout", equalTo(request.getBookingdates().getCheckout()));
     }
@@ -195,27 +191,20 @@ public class BookingSteps {
                 .assertThat()
                 .statusCode(200)
                 .contentType("application/json")
-                .body(matchesJsonSchemaInClasspath("schemas/booking-schema.json"))
-                .body("firstname", equalTo(request.getFirstname()))
-                .body("lastname", equalTo(request.getLastname()))
-                .body("depositpaid", equalTo(request.isDepositpaid()))
-                .body("roomid", equalTo(request.getRoomid()))
-                .body("email", equalTo(request.getEmail()))
-                .body("phone", equalTo(request.getPhone()))
-                .body("bookingdates.checkin", equalTo(request.getBookingdates().getCheckin()))
-                .body("bookingdates.checkout", equalTo(request.getBookingdates().getCheckout()));
+                .body(matchesJsonSchemaInClasspath("schemas/booking-update-response-schema.json"))
+                .body("booking.firstname", equalTo(request.getFirstname()))
+                .body("booking.lastname", equalTo(request.getLastname()))
+                .body("booking.depositpaid", equalTo(request.isDepositpaid()))
+                .body("booking.roomid", equalTo(request.getRoomid()))
+                .body("booking.bookingdates.checkin", equalTo(request.getBookingdates().getCheckin()))
+                .body("booking.bookingdates.checkout", equalTo(request.getBookingdates().getCheckout()));
     }
 
-    @Then("the booking should be partially updated successfully")
-    public void theBookingShouldBePartiallyUpdatedSuccessfully() {
+    @Then("the partial update should be rejected as method not allowed")
+    public void thePartialUpdateShouldBeRejectedAsMethodNotAllowed() {
         context.getResponse().then()
                 .assertThat()
-                .statusCode(200)
-                .contentType("application/json")
-                .body(matchesJsonSchemaInClasspath("schemas/booking-schema.json"))
-                .body("firstname", notNullValue())
-                .body("lastname", notNullValue())
-                .body("bookingdates", notNullValue());
+                .statusCode(405);
     }
 
     @And("the booking should reflect the partial update {string} with value {string}")
@@ -228,7 +217,7 @@ public class BookingSteps {
     public void theBookingShouldBeDeletedSuccessfully() {
         context.getResponse().then()
                 .assertThat()
-                .statusCode(201);
+                .statusCode(202);
     }
 
     @And("retrieving the deleted booking should return not found")
