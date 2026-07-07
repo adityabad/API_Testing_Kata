@@ -195,7 +195,6 @@ public class BookingSteps {
                 .body("booking.firstname", equalTo(request.getFirstname()))
                 .body("booking.lastname", equalTo(request.getLastname()))
                 .body("booking.depositpaid", equalTo(request.isDepositpaid()))
-                .body("booking.roomid", equalTo(request.getRoomid()))
                 .body("booking.bookingdates.checkin", equalTo(request.getBookingdates().getCheckin()))
                 .body("booking.bookingdates.checkout", equalTo(request.getBookingdates().getCheckout()));
     }

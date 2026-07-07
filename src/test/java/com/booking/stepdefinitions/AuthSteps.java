@@ -17,6 +17,14 @@ public class AuthSteps {
     private Response response;
     private String username;
     private String password;
+    private AuthState authState = AuthState.NONE;
+
+    private enum AuthState {
+        NONE,
+        NOT_LOGGED_IN,
+        EXPIRED_TOKEN,
+        CORRUPTED_TOKEN
+    }
 
     @Given("a staff member has valid credentials")
     public void aStaffMemberHasValidCredentials() {
@@ -50,17 +58,17 @@ public class AuthSteps {
 
     @Given("a staff member is not logged in")
     public void aStaffMemberIsNotLoggedIn() {
-        this.response = bookingClient.getBookingWithoutAuth(999999);
+        this.authState = AuthState.NOT_LOGGED_IN;
     }
 
     @Given("a staff member's session has expired")
     public void aStaffMemberSessionHasExpired() {
-        this.response = bookingClient.getBookingWithInvalidToken(999999);
+        this.authState = AuthState.EXPIRED_TOKEN;
     }
 
     @Given("a staff member's session details are corrupted")
     public void aStaffMemberSessionDetailsAreCorrupted() {
-        this.response = bookingClient.getBookingWithMalformedToken(999999);
+        this.authState = AuthState.CORRUPTED_TOKEN;
     }
 
     @When("they log in")
@@ -70,8 +78,19 @@ public class AuthSteps {
 
     @When("they try to view a booking")
     public void theyTryToViewABooking() {
-        // The request was already sent in the Given step based on the session state.
-        // This step exists purely for readability in the Gherkin scenario.
+        switch (authState) {
+            case NOT_LOGGED_IN:
+                response = bookingClient.getBookingWithoutAuth(999999);
+                break;
+            case EXPIRED_TOKEN:
+                response = bookingClient.getBookingWithInvalidToken(999999);
+                break;
+            case CORRUPTED_TOKEN:
+                response = bookingClient.getBookingWithMalformedToken(999999);
+                break;
+            default:
+                throw new IllegalStateException("No authorization state was set before attempting to view a booking");
+        }
     }
 
     @Then("they should be granted access")
